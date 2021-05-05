@@ -1,0 +1,93 @@
+{
+  "name": "vocabulary-web",
+  "version": "1.0.0",
+  "description": "My own vocabulary app, based on React and Express.js",
+  "scripts": {
+    "test": "jest",
+    "build": "webpack build",
+    "watch": "webpack watch",
+    "serve": "webpack serve"
+  },
+  "keywords": [
+    "vocabulary",
+    "learning",
+    "web",
+    "react",
+    "expressjs"
+  ],
+  "author": "Alexander Urban <lexa79@pm.me>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.0",
+    "@babel/preset-env": "^7.14.1",
+    "@babel/preset-react": "^7.13.13",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.0.2",
+    "babel-jest": "^26.6.3",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.2.4",
+    "eslint": "^7.25.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "html-webpack-plugin": "^5.3.1",
+    "jest": "^26.6.3",
+    "jest-extended": "^0.11.5",
+    "mini-css-extract-plugin": "^1.6.0",
+    "prettier": "^2.2.1",
+    "sass": "^1.32.12",
+    "sass-loader": "^11.0.1",
+    "webpack": "^5.36.2",
+    "webpack-cli": "^4.6.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "jest": true
+    },
+    "extends": [
+      "airbnb",
+      "prettier"
+    ],
+    "plugins": [
+      "jest"
+    ],
+    "rules": {
+      "no-use-before-define": [
+        "error",
+        "nofunc"
+      ],
+      "no-underscore-dangle": "off"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "useTabs": false,
+    "printWidth": 100,
+    "arrowParens": "avoid"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ]
+  },
+  "jest": {
+    "clearMocks": true,
+    "setupFilesAfterEnv": [
+      "jest-extended"
+    ],
+    "verbose": true,
+    "testEnvironment": "jsdom"
+  }
+}
