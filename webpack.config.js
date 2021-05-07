@@ -1,10 +1,9 @@
 const path = require('path');
 
-// @ts-ignore
-const { babel: BabelConfig } = require('./package.json');
-
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const { babel: BabelConfig } = require('./package.json');
 
 module.exports = {
   mode: 'development',
@@ -15,11 +14,12 @@ module.exports = {
   devServer: {
     contentBase: './dist',
   },
+  resolve: ['.js', '.jsx', '.json'],
   plugins: [new MiniCssExtractPlugin(), new HtmlWebpackPlugin({ template: './src/index.html' })],
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
