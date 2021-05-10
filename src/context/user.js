@@ -28,14 +28,14 @@ function UserProvider(props) {
   const { children } = props;
 
   if (Global.context == null) {
-    const dummyContextData = _getFullContextValue(Global.dummyData, () => {});
+    const dummyContextData = _getFullContextData(Global.dummyData, () => {});
     Global.context = React.createContext(dummyContextData);
   }
 
   const { Provider } = Global.context;
 
   const [data, setData] = React.useState({ active: false, username: null, name: null });
-  const value = _getFullContextValue(data, setData);
+  const value = _getFullContextData(data, setData);
 
   return <Provider value={value}>{children}</Provider>;
 }
@@ -49,7 +49,7 @@ UserProvider.defaultProps = {
 
 /**
  * Component `<UserConsumer/>`
- * which expects a single function as child and must be wrapped by a <UserProvider/>.
+ * expects a single function as child and must be wrapped in a `<UserProvider/>`.
  *
  * The function as child is invoked with the updated context-data
  * and might return any JSX-output as needed.
@@ -93,7 +93,7 @@ function useUserContext() {
     return React.useContext(Global.context);
   }
 
-  const dummyContextData = _getFullContextValue(Global.dummyData, () => {});
+  const dummyContextData = _getFullContextData(Global.dummyData, () => {});
   return dummyContextData;
 }
 
@@ -102,7 +102,7 @@ function useUserContext() {
  * @param {(newData) => void} setData callback to change the context-data
  * @returns {object} updated context-data filled with some public methods
  */
-function _getFullContextValue(data, setData) {
+function _getFullContextData(data, setData) {
   return {
     active: data.active,
     username: data.username,

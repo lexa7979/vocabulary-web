@@ -397,11 +397,13 @@ function runTestsAboutEdgeCases() {
 
 /**
  * <TestComponentWithUserDataByProps />
+ * shows a simple information text about the user or
+ * generates a button to login or logout.
  *
  * @param {object} props
  * @param {string} props.target e.g. "login-button"
  * @param {string} [props.testid] e.g. "login", defaults to props.target
- * @param {object} props.userData
+ * @param {object} props.userData current data of context "user"
  *
  * @throws e.g. if invalid target is given
  * @returns {JSX.Element}
@@ -459,6 +461,10 @@ TestComponentWithUserDataByProps.defaultProps = {
 
 /**
  * <TestComponentWithUserDataByHook />
+ * shows a simple information text about the user or
+ * generates a button to login or logout.
+ *
+ * The current data of context "user" is accessed via the hook useUserContext().
  *
  * @param {object} props
  * @param {string} props.target e.g. "login-button"
