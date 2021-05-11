@@ -15,7 +15,8 @@ import {
 import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons';
 
 import { useUserContext } from '../context';
-import { Copyright } from '../helpers';
+
+import Copyright from '../helpers/Copyright';
 
 export default Login;
 
