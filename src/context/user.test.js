@@ -12,7 +12,7 @@ const DUMMY_USER_INFO = 'Current user is dummy (Dummy context user)';
 describe(bold('Context "user"'), () => {
   beforeEach(User._testInternals.resetContext);
 
-  it(`${green('exports 3 items')} as expected`, () => {
+  it(`${green('exports 3 public items')} as expected`, () => {
     expect(User).toContainAllKeys([
       'UserProvider',
       'UserConsumer',
@@ -62,6 +62,7 @@ function runTestsAboutUserProvider() {
       expect(User._testInternals.getContext()).toBeNull();
 
       render(<UserProvider />);
+
       expect(User._testInternals.getContext()).not.toBeNull();
     });
   });

@@ -55,7 +55,7 @@ UserProvider.defaultProps = {
  * and might return any JSX-output as needed.
  *
  * @param {object} props
- * @param {(userData) => *} props.children
+ * @param {(userData: object) => *} props.children
  *
  * @returns {*} Result of call to given function as child
  */
@@ -86,7 +86,7 @@ UserConsumer.propTypes = {
  * if the <UserProvider/> is missing. This might especially
  * be useful in unit-tests of components.
  *
- * @returns {object} current user-data
+ * @returns {UserContextData} current user-data
  */
 function useUserContext() {
   if (Global.context != null) {
@@ -98,9 +98,19 @@ function useUserContext() {
 }
 
 /**
+ * @typedef {object} UserContextData
+ * @property {boolean} active
+ * @property {string} [username]
+ * @property {string} [name]
+ * @property {() => boolean} isLoggedIn
+ * @property {(username: string, name: string) => void} login
+ * @property {() => void} logout
+ */
+
+/**
  * @param {object} data e.g. { active: true, username: "testuser", name: "Test User" }
  * @param {(newData) => void} setData callback to change the context-data
- * @returns {object} updated context-data filled with some public methods
+ * @returns {UserContextData} updated context-data filled with some public methods
  */
 function _getFullContextData(data, setData) {
   return {
