@@ -15,29 +15,28 @@ import {
 import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons';
 
 import { useUserContext } from '../context';
-
 import Copyright from '../helpers/Copyright';
 
 export default Login;
 
-const useStyles = _prepareStyles();
+const useStyles = _prepareStylesHook();
 
 function Login() {
   const userData = useUserContext();
-  const classes = useStyles();
+  const css = useStyles();
 
   const _signIn = () => userData.login('lexa', 'Alexander Urban');
 
   return (
     <Container component="main" maxWidth="xs" className="Login">
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
+      <div className={css.paper}>
+        <Avatar className={css.avatar}>
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Log in
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={css.form} noValidate>
           <TextField
             variant="outlined"
             margin="normal"
@@ -72,7 +71,7 @@ function Login() {
             fullWidth
             variant="contained"
             color="primary"
-            className={classes.submit}
+            className={css.submit}
             onClick={_signIn}
           >
             Log In
@@ -86,7 +85,7 @@ function Login() {
   );
 }
 
-function _prepareStyles() {
+function _prepareStylesHook() {
   return makeStyles(theme => ({
     paper: {
       marginTop: theme.spacing(8),

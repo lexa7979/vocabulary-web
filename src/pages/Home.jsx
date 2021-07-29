@@ -8,14 +8,14 @@ import { Copyright, BaseLayout } from '../helpers';
 
 export default Home;
 
-// const useStyles = _prepareStyles();
+// const useStyles = _prepareStylesHook();
 
 function Home() {
   const userData = useUserContext();
-  // const classes = useStyles();
+  // const css = useStyles();
 
   return (
-    <BaseLayout title="Home" container>
+    <BaseLayout title="Home" hasMainContainer>
       <Grid container spacing={3}>
         <Grid item xs={12} md={8} lg={9}>
           <Typography>{`Welcome, ${userData.name}`}</Typography>
@@ -28,7 +28,7 @@ function Home() {
   );
 }
 
-// function _prepareStyles() {
+// function _prepareStylesHook() {
 //   return makeStyles(theme => ({
 //     root: {},
 //   }));

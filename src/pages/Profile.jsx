@@ -11,7 +11,7 @@ function Profile() {
   const userData = useUserContext();
 
   return (
-    <BaseLayout title="Profile" container>
+    <BaseLayout title="Profile" hasMainContainer>
       <Grid container spacing={3}>
         <Grid item xs={12} md={8} lg={9}>
           <Typography>{`${userData.username} - ${userData.name}`}</Typography>
