@@ -6,8 +6,8 @@ const Global = {
 };
 
 module.exports = {
-  copyObject,
   registerReplaceAction,
+  copyObject,
 
   _testInternals: {
     listReplaceActions() {
@@ -44,10 +44,10 @@ function registerReplaceAction(optionName, callback) {
  *
  *    Beside of all this:
  *    - { replaceAllSpecials: true }
- *      can be set to true if every registered replace-action shall be used
+ *      can be set if every registered replace-action shall be used
  *      when recursively processing the input.
  *
- * @returns {*}
+ * @returns {*} processed input
  * @throws
  */
 function copyObject(input, optionsBag = {}) {
