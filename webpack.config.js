@@ -9,10 +9,14 @@ const { babel: BabelConfig } = require('./package.json');
 const ENV_IS_DEV = ['dev', 'development'].includes(process.env.WEBPACK_ENV);
 const WATCH_IS_ON = process.env.WEBPACK_MODE === 'watch';
 
+const OPEN_BROWSER_ON_SERVE = true;
+// const REFRESH_BROWSER_ON_SERVE = true;
+const SERVE_SUBPATHS_AS_ROOT = true;
+
 module.exports = [
   {
     entry: {
-      vocabulary: './src/index.js',
+      glosfoerhoer: './src/index.js',
     },
     mode: ENV_IS_DEV ? 'development' : 'production',
 
@@ -23,23 +27,28 @@ module.exports = [
     ...getCacheOptions(),
 
     devServer: {
-      contentBase: './dist',
+      open: OPEN_BROWSER_ON_SERVE,
+      historyApiFallback: SERVE_SUBPATHS_AS_ROOT,
+      // contentBase: path.join(__dirname, 'dist'),
+      // watchContentBase: REFRESH_BROWSER_ON_SERVE,
+      // watchOptions: {},
+      writeToDisk: true,
+      proxy: {
+        '/api': 'http://localhost:4001',
+      },
     },
   },
 ];
 
 function getTransformationRules(inputBag) {
-  const { contextIsNode, subDir } = inputBag || {};
+  // const { contextIsNode, subDir } = inputBag || {};
+  const { contextIsNode } = inputBag || {};
 
   const MAGIC_EXTENSIONS_IF_OMITTED_WITH_IMPORT = ['.js', '.jsx', '.json'];
 
   return {
-    plugins: [
-      new MiniCssExtractPlugin(),
-      new HtmlWebpackPlugin({
-        template: './src/index.html',
-      }),
-    ],
+    // @ts-ignore
+    plugins: [new MiniCssExtractPlugin(), new HtmlWebpackPlugin({ template: './src/index.html' })],
     resolve: {
       extensions: MAGIC_EXTENSIONS_IF_OMITTED_WITH_IMPORT,
     },
