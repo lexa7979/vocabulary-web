@@ -3,7 +3,7 @@ import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 import { CssBaseline } from '@material-ui/core';
 
-import { UserContext } from './context';
+import { UserContext, ExerciseContext } from './context';
 import { WithLoginOnly } from './helpers';
 
 import { getRouterPaths } from './config/getPaths';
@@ -20,22 +20,24 @@ function App() {
 
   return (
     <UserContext>
-      <CssBaseline />
-      <Router>
-        <Switch>
-          {paths.map(({ path, component, isProtected }) =>
-            isProtected ? (
-              <Route key={path} path={path}>
-                <WithLoginOnly signIn>{component}</WithLoginOnly>
-              </Route>
-            ) : (
-              <Route key={path} path={path}>
-                {component}
-              </Route>
-            )
-          )}
-        </Switch>
-      </Router>
+      <ExerciseContext>
+        <CssBaseline />
+        <Router>
+          <Switch>
+            {paths.map(({ path, component, isProtected }) =>
+              isProtected ? (
+                <Route key={path} path={path}>
+                  <WithLoginOnly signIn>{component}</WithLoginOnly>
+                </Route>
+              ) : (
+                <Route key={path} path={path}>
+                  {component}
+                </Route>
+              )
+            )}
+          </Switch>
+        </Router>
+      </ExerciseContext>
     </UserContext>
   );
 }
