@@ -16,7 +16,7 @@ const SERVE_SUBPATHS_AS_ROOT = true;
 module.exports = [
   {
     entry: {
-      glosfoerhoer: './src/index.js',
+      glosfoerhoer: './src/App.jsx',
     },
     mode: ENV_IS_DEV ? 'development' : 'production',
 

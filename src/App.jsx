@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 import { CssBaseline } from '@material-ui/core';
@@ -8,12 +9,8 @@ import { WithLoginOnly } from './helpers';
 
 import { getRouterPaths } from './config/getPaths';
 
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-
-export default App;
+// eslint-disable-next-line no-undef
+ReactDOM.render(<App />, document.getElementById('root'));
 
 function App() {
   const paths = getRouterPaths();
