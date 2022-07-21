@@ -4,14 +4,13 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+
 const { babel: BabelConfig } = require('./package.json');
 
 const ENV_IS_DEV = ['dev', 'development'].includes(process.env.WEBPACK_ENV);
 const WATCH_IS_ON = process.env.WEBPACK_MODE === 'watch';
-
-const OPEN_BROWSER_ON_SERVE = true;
-// const REFRESH_BROWSER_ON_SERVE = true;
-const SERVE_SUBPATHS_AS_ROOT = true;
 
 module.exports = [
   {
@@ -22,21 +21,12 @@ module.exports = [
 
     ...getTransformationRules(),
     ...getOutputOptions(),
+
     ...getWatchOptions(),
     ...getConsoleLogOptions(),
     ...getCacheOptions(),
 
-    devServer: {
-      open: OPEN_BROWSER_ON_SERVE,
-      historyApiFallback: SERVE_SUBPATHS_AS_ROOT,
-      // contentBase: path.join(__dirname, 'dist'),
-      // watchContentBase: REFRESH_BROWSER_ON_SERVE,
-      // watchOptions: {},
-      writeToDisk: true,
-      proxy: {
-        '/api': 'http://localhost:4001',
-      },
-    },
+    ...getDevServerOptions(),
   },
 ];
 
@@ -45,6 +35,8 @@ function getTransformationRules(inputBag) {
   const { contextIsNode } = inputBag || {};
 
   const MAGIC_EXTENSIONS_IF_OMITTED_WITH_IMPORT = ['.js', '.jsx', '.json'];
+
+  const _ignoreWithNode = data => (contextIsNode ? 'null-loader' : data);
 
   return {
     // @ts-ignore
@@ -65,38 +57,32 @@ function getTransformationRules(inputBag) {
         },
         {
           test: /\.s?css$/i,
-          use: contextIsNode
-            ? 'null-loader'
-            : [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+          use: _ignoreWithNode([MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']),
         },
         {
           test: /\.(png|jpe?g|gif|svg)$/i,
-          use: contextIsNode
-            ? 'null-loader'
-            : [
-                {
-                  loader: 'file-loader',
-                  options: {
-                    // publicPath: composePublicPathString('static', subDir),
-                    name: '[name].[hash:8].[ext]',
-                    outputPath: 'images',
-                  },
-                },
-              ],
+          use: _ignoreWithNode([
+            {
+              loader: 'file-loader',
+              options: {
+                // publicPath: composePublicPathString('static', subDir),
+                name: '[name].[hash:8].[ext]',
+                outputPath: 'images',
+              },
+            },
+          ]),
         },
         {
           test: /\.(ttf|woff|woff2|otf)$/,
-          use: contextIsNode
-            ? 'null-loader'
-            : [
-                {
-                  loader: 'file-loader',
-                  options: {
-                    name: '[name].[hash:8].[ext]',
-                    outputPath: 'fonts',
-                  },
-                },
-              ],
+          use: _ignoreWithNode([
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[name].[hash:8].[ext]',
+                outputPath: 'fonts',
+              },
+            },
+          ]),
         },
       ],
     },
@@ -207,6 +193,29 @@ function getCacheOptions(inputBag) {
         },
       }
     : null;
+}
+
+function getDevServerOptions() {
+  const OPEN_BROWSER_ON_SERVE = true;
+  const REFRESH_BROWSER_ON_SERVE = true;
+  const SERVE_SUBPATHS_AS_ROOT = true;
+
+  const _before = app => {
+    app.use(cookieParser());
+    app.use(session({ secret: 'glosförhör session secret' }));
+  };
+
+  return {
+    devServer: {
+      contentBase: path.join(__dirname, 'dist'),
+      historyApiFallback: SERVE_SUBPATHS_AS_ROOT,
+      watchContentBase: REFRESH_BROWSER_ON_SERVE,
+      writeToDisk: true,
+      proxy: { '/api': 'http://localhost:4001' },
+      before: _before,
+      open: OPEN_BROWSER_ON_SERVE,
+    },
+  };
 }
 
 function composePublicPathString(...subDirParts) {
