@@ -13,10 +13,10 @@ const _testInternals = {
   },
 };
 
-export { UserProvider, UserConsumer, useUserContext, _testInternals };
+export { UserContext, UserConsumer, useUserContext, _testInternals };
 
 /**
- * Component `<UserProvider/>`
+ * Component `<UserContext/>`
  * returns all given children and enables them to access the context "user".
  *
  * @param {object} props
@@ -24,7 +24,7 @@ export { UserProvider, UserConsumer, useUserContext, _testInternals };
  *
  * @returns {*} JSX
  */
-function UserProvider(props) {
+function UserContext(props) {
   const { children } = props;
 
   if (Global.context == null) {
@@ -40,16 +40,16 @@ function UserProvider(props) {
   return <Provider value={value}>{children}</Provider>;
 }
 
-UserProvider.propTypes = {
+UserContext.propTypes = {
   children: PropTypes.node,
 };
-UserProvider.defaultProps = {
+UserContext.defaultProps = {
   children: null,
 };
 
 /**
  * Component `<UserConsumer/>`
- * expects a single function as child and must be wrapped in a `<UserProvider/>`.
+ * expects a single function as child and must be wrapped in a `<UserContext/>`.
  *
  * The function as child is invoked with the updated context-data
  * and might return any JSX-output as needed.
@@ -80,10 +80,10 @@ UserConsumer.propTypes = {
 /**
  * React hook `useUserContext()`
  * which will return the updated context-data if it is used
- * inside a component which is wrapped by a <UserProvider/>.
+ * inside a component which is wrapped by a <UserContext/>.
  *
  * The function will return some semi-functional dummy-data
- * if the <UserProvider/> is missing. This might especially
+ * if the <UserContext/> is missing. This might especially
  * be useful in unit-tests of components.
  *
  * @returns {UserContextData} current user-data

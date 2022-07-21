@@ -14,7 +14,7 @@ describe(bold('Context "user"'), () => {
 
   it(`${green('exports 3 public items')} as expected`, () => {
     expect(User).toContainAllKeys([
-      'UserProvider',
+      'UserContext',
       'UserConsumer',
       'useUserContext',
       '_testInternals',
@@ -29,25 +29,25 @@ describe(bold('Context "user"'), () => {
 });
 
 function runTestsAboutUserProvider() {
-  const { UserProvider } = User;
+  const { UserContext } = User;
 
-  describe(`exports a component ${bold('<UserProvider/>')} which`, () => {
+  describe(`exports a component ${bold('<UserContext/>')} which`, () => {
     it(IS_ACCESSIBLE, () => {
-      expect(UserProvider).toBeFunction();
+      expect(UserContext).toBeFunction();
     });
 
     it(`${green("doesn't render")} any output itself`, () => {
-      const { container } = render(<UserProvider />);
+      const { container } = render(<UserContext />);
       expect(container.firstChild).toBeNull();
     });
 
     it(`${RETURNS} any given children`, () => {
       const testSetup = (
-        <UserProvider>
+        <UserContext>
           <div>Test Content 1</div>
           <div>Test Content 2</div>
           <div>Test Content 3</div>
-        </UserProvider>
+        </UserContext>
       );
 
       const { container } = render(testSetup);
@@ -61,7 +61,7 @@ function runTestsAboutUserProvider() {
     it(`internally ${green('creates')} a new context`, () => {
       expect(User._testInternals.getContext()).toBeNull();
 
-      render(<UserProvider />);
+      render(<UserContext />);
 
       expect(User._testInternals.getContext()).not.toBeNull();
     });
@@ -69,14 +69,14 @@ function runTestsAboutUserProvider() {
 }
 
 function runTestsAboutUserConsumer() {
-  const { UserConsumer, UserProvider } = User;
+  const { UserConsumer, UserContext } = User;
 
   describe(`exports a component ${bold('<UserConsumer/>')} which`, () => {
     it(IS_ACCESSIBLE, () => {
       expect(UserConsumer).toBeFunction();
     });
 
-    it(`- when used w/o any <UserProvider/> - ${FAILS} as expected`, () => {
+    it(`- when used w/o any <UserContext/> - ${FAILS} as expected`, () => {
       const testRun = () =>
         render(
           <UserConsumer>
@@ -92,79 +92,83 @@ function runTestsAboutUserConsumer() {
     it(`- when not used with a function as child - ${FAILS} as expected`, () => {
       const testRun = () =>
         render(
-          <UserProvider>
+          <UserContext>
             <UserConsumer>
               {/* @ts-ignore */}
               <div>Test Content</div>
             </UserConsumer>
-          </UserProvider>
+          </UserContext>
         );
 
       expect(() => Console.runQuietly(testRun)).toThrow('Child must be a function');
     });
 
-    it(`- when placed outside of an existing <UserProvider/> - ${red(
-      'only delivers'
-    )} some semi-functional dummy-data`, () => {
+    it(
+      '- when placed outside of an existing <UserContext/> - ' +
+        `${red('only delivers')} some semi-functional dummy-data`,
+      () => {
+        const testSetup = (
+          <>
+            <UserContext>
+              <div>Test Content</div>
+            </UserContext>
+            <UserConsumer>
+              {userData => (
+                <>
+                  <TestComponentWithUserDataByProps target="user-info" userData={userData} />
+                  <TestComponentWithUserDataByProps target="login-button" userData={userData} />
+                </>
+              )}
+            </UserConsumer>
+          </>
+        );
+
+        const { getByTestId } = render(testSetup);
+
+        const userInfo = getByTestId('user-info');
+        const loginButton = getByTestId('login-button');
+
+        expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
+        fireEvent.click(loginButton);
+        expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
+      }
+    );
+
+    it(
+      '- when wrapped in <UserContext/> and used with a function as child - ' +
+        `${green('gives full access')} to updated context-data`,
+      () => {
+        const testSetup = (
+          <UserContext>
+            <UserConsumer>
+              {userData => (
+                <>
+                  <TestComponentWithUserDataByProps target="user-info" userData={userData} />
+                  <TestComponentWithUserDataByProps target="login-button" userData={userData} />
+                  <TestComponentWithUserDataByProps target="logout-button" userData={userData} />
+                </>
+              )}
+            </UserConsumer>
+          </UserContext>
+        );
+
+        const { getByTestId } = render(testSetup);
+
+        const userInfo = getByTestId('user-info');
+        const loginButton = getByTestId('login-button');
+        const logoutButton = getByTestId('logout-button');
+
+        expect(userInfo).toHaveTextContent('Nobody is logged in');
+        fireEvent.click(loginButton);
+        expect(userInfo).toHaveTextContent('Current user is testuser (Test User)');
+        fireEvent.click(logoutButton);
+        expect(userInfo).toHaveTextContent('Nobody is logged in');
+      }
+    );
+
+    it(`- when used twice inside of same <UserContext/> - ${green('uses')} same context`, () => {
       const testSetup = (
-        <>
-          <UserProvider>
-            <div>Test Content</div>
-          </UserProvider>
-          <UserConsumer>
-            {userData => (
-              <>
-                <TestComponentWithUserDataByProps target="user-info" userData={userData} />
-                <TestComponentWithUserDataByProps target="login-button" userData={userData} />
-              </>
-            )}
-          </UserConsumer>
-        </>
-      );
-
-      const { getByTestId } = render(testSetup);
-
-      const userInfo = getByTestId('user-info');
-      const loginButton = getByTestId('login-button');
-
-      expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-      fireEvent.click(loginButton);
-      expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-    });
-
-    it(`- when wrapped in <UserProvider/> and used with a function as child - ${green(
-      'gives full access'
-    )} to updated context-data`, () => {
-      const testSetup = (
-        <UserProvider>
-          <UserConsumer>
-            {userData => (
-              <>
-                <TestComponentWithUserDataByProps target="user-info" userData={userData} />
-                <TestComponentWithUserDataByProps target="login-button" userData={userData} />
-                <TestComponentWithUserDataByProps target="logout-button" userData={userData} />
-              </>
-            )}
-          </UserConsumer>
-        </UserProvider>
-      );
-
-      const { getByTestId } = render(testSetup);
-
-      const userInfo = getByTestId('user-info');
-      const loginButton = getByTestId('login-button');
-      const logoutButton = getByTestId('logout-button');
-
-      expect(userInfo).toHaveTextContent('Nobody is logged in');
-      fireEvent.click(loginButton);
-      expect(userInfo).toHaveTextContent('Current user is testuser (Test User)');
-      fireEvent.click(logoutButton);
-      expect(userInfo).toHaveTextContent('Nobody is logged in');
-    });
-
-    it(`- when used twice inside of same <UserProvider/> - ${green('uses')} same context`, () => {
-      const testSetup = (
-        <UserProvider>
+        <UserContext>
           <UserConsumer>
             {userData => (
               <TestComponentWithUserDataByProps target="user-info" userData={userData} />
@@ -175,7 +179,7 @@ function runTestsAboutUserConsumer() {
               <TestComponentWithUserDataByProps target="login-button" userData={userData} />
             )}
           </UserConsumer>
-        </UserProvider>
+        </UserContext>
       );
 
       const { getByTestId } = render(testSetup);
@@ -191,115 +195,123 @@ function runTestsAboutUserConsumer() {
 }
 
 function runTestsAboutUseUserContext() {
-  const { UserProvider, useUserContext } = User;
+  const { UserContext, useUserContext } = User;
 
   describe(`exports a hook ${bold('useUserContext()')} which`, () => {
     it(IS_ACCESSIBLE, () => {
       expect(useUserContext).toBeFunction();
     });
 
-    it(`- when used outside of any component - ${red(
-      'only delivers'
-    )} some semi-functional dummy-data`, () => {
-      const userData = useUserContext();
+    it(
+      '- when used outside of any component - ' +
+        `${red('only delivers')} some semi-functional dummy-data`,
+      () => {
+        const userData = useUserContext();
 
-      const copy = copyObject(userData, { replaceFunctions: true });
-      expect(copy).toEqual({
-        username: 'dummy',
-        name: 'Dummy context user',
-        active: true,
-        isLoggedIn: '(FUNC:isLoggedIn)',
-        login: '(FUNC:login)',
-        logout: '(FUNC:logout)',
-      });
+        const copy = copyObject(userData, { replaceFunctions: true });
+        expect(copy).toEqual({
+          username: 'dummy',
+          name: 'Dummy context user',
+          active: true,
+          isLoggedIn: '(FUNC:isLoggedIn)',
+          login: '(FUNC:login)',
+          logout: '(FUNC:logout)',
+        });
 
-      expect(userData.isLoggedIn()).toBeTrue();
+        expect(userData.isLoggedIn()).toBeTrue();
 
-      userData.login('testuser', 'Test User');
-      expect([userData.username, userData.name]).toEqual(['dummy', 'Dummy context user']);
+        userData.login('testuser', 'Test User');
+        expect([userData.username, userData.name]).toEqual(['dummy', 'Dummy context user']);
 
-      userData.logout();
-      expect([userData.username, userData.name]).toEqual(['dummy', 'Dummy context user']);
-    });
+        userData.logout();
+        expect([userData.username, userData.name]).toEqual(['dummy', 'Dummy context user']);
+      }
+    );
 
-    it(`- when used in components w/o any <UserProvider/> - ${red(
-      'only delivers'
-    )} some semi-functional dummy-data`, () => {
-      const testSetup = (
-        <>
-          <TestComponentWithUserDataByHook target="user-info" />
-          <TestComponentWithUserDataByHook target="login-button" />
-        </>
-      );
+    it(
+      '- when used in components w/o any <UserContext/> - ' +
+        `${red('only delivers')} some semi-functional dummy-data`,
+      () => {
+        const testSetup = (
+          <>
+            <TestComponentWithUserDataByHook target="user-info" />
+            <TestComponentWithUserDataByHook target="login-button" />
+          </>
+        );
 
-      const { getByTestId } = render(testSetup);
+        const { getByTestId } = render(testSetup);
 
-      const userInfo = getByTestId('user-info');
-      const loginButton = getByTestId('login-button');
+        const userInfo = getByTestId('user-info');
+        const loginButton = getByTestId('login-button');
 
-      expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-      fireEvent.click(loginButton);
-      expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-    });
+        expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
+        fireEvent.click(loginButton);
+        expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
+      }
+    );
 
-    it(`- when used in components which are placed outside of an existing <UserProvider/> - ${red(
-      'only delivers'
-    )} some semi-functional dummy-data`, () => {
-      const testSetup = (
-        <>
-          <UserProvider>
-            <div>Test Content</div>
-          </UserProvider>
-          <TestComponentWithUserDataByHook target="user-info" />
-          <TestComponentWithUserDataByHook target="login-button" />
-        </>
-      );
+    it(
+      '- when used in components which are placed outside of an existing <UserContext/> - ' +
+        `${red('only delivers')} some semi-functional dummy-data`,
+      () => {
+        const testSetup = (
+          <>
+            <UserContext>
+              <div>Test Content</div>
+            </UserContext>
+            <TestComponentWithUserDataByHook target="user-info" />
+            <TestComponentWithUserDataByHook target="login-button" />
+          </>
+        );
 
-      const { getByTestId } = render(testSetup);
+        const { getByTestId } = render(testSetup);
 
-      const userInfo = getByTestId('user-info');
-      const loginButton = getByTestId('login-button');
+        const userInfo = getByTestId('user-info');
+        const loginButton = getByTestId('login-button');
 
-      expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-      fireEvent.click(loginButton);
-      expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-    });
+        expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
+        fireEvent.click(loginButton);
+        expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
+      }
+    );
 
-    it(`- when used in components wrapped in <UserProvider/> - ${green(
-      'gives full access'
-    )} to updated context-data`, () => {
-      const testSetup = (
-        <UserProvider>
-          <TestComponentWithUserDataByHook target="user-info" />
-          <TestComponentWithUserDataByHook target="login-button" />
-          <TestComponentWithUserDataByHook target="logout-button" />
-        </UserProvider>
-      );
+    it(
+      '- when used in components wrapped in <UserContext/> - ' +
+        `${green('gives full access')} to updated context-data`,
+      () => {
+        const testSetup = (
+          <UserContext>
+            <TestComponentWithUserDataByHook target="user-info" />
+            <TestComponentWithUserDataByHook target="login-button" />
+            <TestComponentWithUserDataByHook target="logout-button" />
+          </UserContext>
+        );
 
-      const { getByTestId } = render(testSetup);
+        const { getByTestId } = render(testSetup);
 
-      const userInfo = getByTestId('user-info');
-      const loginButton = getByTestId('login-button');
-      const logoutButton = getByTestId('logout-button');
+        const userInfo = getByTestId('user-info');
+        const loginButton = getByTestId('login-button');
+        const logoutButton = getByTestId('logout-button');
 
-      expect(userInfo).toHaveTextContent('Nobody is logged in');
-      fireEvent.click(loginButton);
-      expect(userInfo).toHaveTextContent('Current user is testuser (Test User)');
-      fireEvent.click(logoutButton);
-      expect(userInfo).toHaveTextContent('Nobody is logged in');
-    });
+        expect(userInfo).toHaveTextContent('Nobody is logged in');
+        fireEvent.click(loginButton);
+        expect(userInfo).toHaveTextContent('Current user is testuser (Test User)');
+        fireEvent.click(logoutButton);
+        expect(userInfo).toHaveTextContent('Nobody is logged in');
+      }
+    );
   });
 }
 
 function runTestsAboutEdgeCases() {
-  const { UserProvider, UserConsumer } = User;
+  const { UserContext, UserConsumer } = User;
 
   describe('has some edge cases:', () => {
     const edgeCases = [
-      ['<UserConsumer/>', 'inside of different <UserProvider/>'],
-      ['<UserConsumer/>', 'within two nested <UserProvider/>'],
-      ['useUserContext()', 'inside of different <UserProvider/>'],
-      ['useUserContext()', 'within two nested <UserProvider/>'],
+      ['<UserConsumer/>', 'inside of different <UserContext/>'],
+      ['<UserConsumer/>', 'within two nested <UserContext/>'],
+      ['useUserContext()', 'inside of different <UserContext/>'],
+      ['useUserContext()', 'within two nested <UserContext/>'],
     ];
 
     it.each(edgeCases)(
@@ -359,21 +371,21 @@ function runTestsAboutEdgeCases() {
           default:
             throw new Error(`Invalid case-situation "${caseSituation}"`);
 
-          case 'inside of different <UserProvider/>':
+          case 'inside of different <UserContext/>':
             testSetup = (
               <>
-                <UserProvider>{testConsumer1}</UserProvider>
-                <UserProvider>{testConsumer2}</UserProvider>
+                <UserContext>{testConsumer1}</UserContext>
+                <UserContext>{testConsumer2}</UserContext>
               </>
             );
             break;
 
-          case 'within two nested <UserProvider/>':
+          case 'within two nested <UserContext/>':
             testSetup = (
-              <UserProvider>
+              <UserContext>
                 {testConsumer1}
-                <UserProvider>{testConsumer2}</UserProvider>
-              </UserProvider>
+                <UserContext>{testConsumer2}</UserContext>
+              </UserContext>
             );
             break;
         }

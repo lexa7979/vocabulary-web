@@ -1,3 +1,4 @@
-import { UserProvider, UserConsumer, useUserContext } from './user';
+import { UserContext, useUserContext } from './user';
+import { ExerciseContext, useExerciseContext } from './exercise';
 
-export { UserProvider, UserConsumer, useUserContext };
+export { UserContext, useUserContext, ExerciseContext, useExerciseContext };

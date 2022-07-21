@@ -3,7 +3,7 @@ import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 
 import { CssBaseline } from '@material-ui/core';
 
-import { UserProvider as UserContext } from './context';
+import { UserContext } from './context';
 import { WithLoginOnly } from './helpers';
 
 import { getRouterPaths } from './config/getPaths';
