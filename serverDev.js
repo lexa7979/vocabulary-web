@@ -15,7 +15,7 @@ const webpackConfig = require('./webpack.config');
 
 (async function init() {
   await bundleWithWebpack();
-  await startServer();
+  await startServer({ portHttp: 3000, portHttps: 4000 });
 })();
 
 async function bundleWithWebpack() {
@@ -52,7 +52,11 @@ async function bundleWithWebpack() {
   console.log('... ready', { errors });
 }
 
-async function startServer() {
+async function startServer({ portHttp, portHttps }) {
+  if (!portHttp && !portHttps) {
+    throw new Error('Missing input');
+  }
+
   console.log('Starting web-server');
 
   const app = express();
@@ -77,12 +81,19 @@ async function startServer() {
   });
   app.get('/*', (req, res) => res.sendFile(path.resolve(__dirname, 'dist/index.html')));
 
-  const httpsOptions = {
-    key: fs.readFileSync(path.join(__dirname, 'key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'cert.pem')),
-  };
-  http.createServer(app).listen(3000);
-  https.createServer(httpsOptions, app).listen(4000);
+  if (portHttp) {
+    http
+      .createServer(app)
+      .listen(portHttp, () => console.log(`... ready on http://localhost:${portHttp}`));
+  }
 
-  console.log('... ready on http://localhost:3000 and https://localhost:4000');
+  if (portHttps) {
+    const httpsOptions = {
+      key: fs.readFileSync(path.join(__dirname, 'key.pem')),
+      cert: fs.readFileSync(path.join(__dirname, 'cert.pem')),
+    };
+    https
+      .createServer(httpsOptions, app)
+      .listen(portHttps, () => console.log(`... ready on https://localhost:${portHttps}`));
+  }
 }

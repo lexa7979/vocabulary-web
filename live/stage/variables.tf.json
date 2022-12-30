@@ -1,0 +1,24 @@
+{
+  "variable": {
+    "region": {
+      "description": "AWS region",
+      "type": "string",
+      "default": "eu-north-1"
+    },
+    "instance_name": {
+      "description": "Value of the Name tag for the EC2 instance",
+      "type": "string",
+      "default": "GlosfoerhoerFrontend"
+    },
+    "instance_type": {
+      "description": "Type of EC2 instance to provision",
+      "type": "string",
+      "default": "t3.micro"
+    },
+    "instance_ami": {
+      "description": "ID of the Amazon Machine Image to be used (Default: Ubuntu 22.04 LTS HVM)",
+      "type": "string",
+      "default": "ami-0fd303abd14827300"
+    }
+  }
+}
