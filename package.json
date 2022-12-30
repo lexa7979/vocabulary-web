@@ -11,7 +11,8 @@
     "build-dev": "bash -c 'WEBPACK_MODE=build WEBPACK_ENV=dev webpack'",
     "watch": "bash -c 'WEBPACK_MODE=watch WEBPACK_ENV=dev webpack'",
     "serve": "bash -c 'WEBPACK_ENV=dev webpack serve'",
-    "postinstall": "rm -rf ./dist/* ./node_modules/.cache/webpack"
+    "postinstall": "rm -rf ./dist/* ./node_modules/.cache/webpack",
+    "create-cert": "openssl genrsa -out key.pem && openssl req -new -key key.pem -out csr.pem && openssl x509 -req -days 9999 -in csr.pem -signkey key.pem -out cert.pem && rm csr.pem"
   },
   "keywords": [
     "vocabulary",
