@@ -1,5 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { createContext } from 'react';
+
+// const dummyContextData = _getFullContextData(_getDummyData())
+
+// const Context = createContext(dummyContextData);
+
+// const ExerciseContextProvider = Context.Provider;
 
 const Global = {
   context: null,
@@ -13,12 +18,10 @@ export { ExerciseContext, useExerciseContext };
  * returns all given children and enables them to access the context.
  *
  * @param {object} props
- * @param {*} [props.children]
- *
- * @returns {*} JSX
+ * @param {React.ReactNode} [props.children]
  */
-function ExerciseContext(props) {
-  const { children } = props;
+function ExerciseContext({ children }) {
+  const [data, setData] = React.useState(_getInitData());
 
   if (Global.context == null) {
     const dummyContextData = _getFullContextData(Global.dummyData, () => {});
@@ -27,18 +30,8 @@ function ExerciseContext(props) {
 
   const { Provider } = Global.context;
 
-  const [data, setData] = React.useState(_getInitData());
-  const value = _getFullContextData(data, setData);
-
-  return <Provider value={value}>{children}</Provider>;
+  return <Provider value={_getFullContextData(data, setData)}>{children}</Provider>;
 }
-
-ExerciseContext.propTypes = {
-  children: PropTypes.node,
-};
-ExerciseContext.defaultProps = {
-  children: null,
-};
 
 /**
  * React hook `useExerciseContext()`
@@ -61,37 +54,35 @@ function useExerciseContext() {
 }
 
 /**
- * @typedef {object} ExerciseContextLessonData
- * @property {string} text
- * @property {string} translation
- * @property {string} [comment]
- *
  * @typedef {object} ExerciseContextFullData
- * @property {ExerciseContextLessonData[]} lessons
- * @property {number} [currLessonIndex]
+ * @prop {ExerciseContextLessonData[]} lessons
+ * @prop {number} [currLessonIndex]
  *
  * @typedef {object} ExerciseContextDataAndMethods
- * @property {ExerciseContextLessonData[]} lessons
- * @property {number} [currLessonIndex]
- * @property {(listOfLessons : ExerciseContextLessonData[]) => void} setAllLessons
- * @property {(index : number) => ExerciseContextLessonData|null} getLessonAtIndex
- * @property {() => ExerciseContextLessonData|null} getFirstLesson
- * @property {() => ExerciseContextLessonData|null} getPrevLesson
- * @property {() => ExerciseContextLessonData|null} getCurrLesson
- * @property {() => ExerciseContextLessonData|null} getNextLesson
- * @property {() => ExerciseContextLessonData|null} getLastLesson
- * @property {() => number} getLessonsCount
- * @property {() => boolean} hasCurrLesson
- * @property {(index : number) => ExerciseContextLessonData|null} gotoLessonAtIndex
- * @property {() => ExerciseContextLessonData|null} gotoFirstLesson
- * @property {() => ExerciseContextLessonData|null} gotoPrevLesson
- * @property {() => ExerciseContextLessonData|null} gotoNextLesson
- * @property {() => ExerciseContextLessonData|null} gotoLastLesson
+ * @prop {ExerciseContextLessonData[]} lessons
+ * @prop {number} [currLessonIndex]
+ * @prop {(listOfLessons : ExerciseContextLessonData[]) => void} setAllLessons
+ * @prop {(index : number) => ExerciseContextLessonData|null} getLessonAtIndex
+ * @prop {() => ExerciseContextLessonData|null} getFirstLesson
+ * @prop {() => ExerciseContextLessonData|null} getPrevLesson
+ * @prop {() => ExerciseContextLessonData|null} getCurrLesson
+ * @prop {() => ExerciseContextLessonData|null} getNextLesson
+ * @prop {() => ExerciseContextLessonData|null} getLastLesson
+ * @prop {() => number} getLessonsCount
+ * @prop {() => boolean} hasCurrLesson
+ * @prop {(index : number) => ExerciseContextLessonData|null} gotoLessonAtIndex
+ * @prop {() => ExerciseContextLessonData|null} gotoFirstLesson
+ * @prop {() => ExerciseContextLessonData|null} gotoPrevLesson
+ * @prop {() => ExerciseContextLessonData|null} gotoNextLesson
+ * @prop {() => ExerciseContextLessonData|null} gotoLastLesson
+ *
+ * @typedef {object} ExerciseContextLessonData
+ * @prop {string} text
+ * @prop {string} translation
+ * @prop {string} [comment]
  */
 
-/**
- * @returns {{lessons: ExerciseContextLessonData[], currLessonIndex?: number}}
- */
+/** @returns {ExerciseContextFullData} */
 function _getInitData() {
   return {
     lessons: [],
@@ -99,9 +90,7 @@ function _getInitData() {
   };
 }
 
-/**
- * @returns {{lessons: ExerciseContextLessonData[], currLessonIndex?: number}}
- */
+/** @returns {ExerciseContextFullData} */
 function _getDummyData() {
   return {
     lessons: [
@@ -115,13 +104,15 @@ function _getDummyData() {
 }
 
 /**
- * @param {object} data
- * @param {(newData) => void} setData callback to change the context-data
+ * @param {ExerciseContextFullData} data
+ * @param {(newData: ExerciseContextFullData) => void} setData callback to change the context-data
+ *
  * @returns {ExerciseContextDataAndMethods} updated context-data filled with some public methods
  */
 function _getFullContextData(data, setData) {
   const { lessons, currLessonIndex } = data;
 
+  /** @param {ExerciseContextLessonData[]} listOfLessons */
   const setAllLessons = listOfLessons => {
     if (Array.isArray(listOfLessons)) {
       setData({ lessons: listOfLessons, currLessonIndex: listOfLessons.length > 0 ? 0 : null });
@@ -129,6 +120,7 @@ function _getFullContextData(data, setData) {
     throw new Error('setAllLessons() failed - invalid argument');
   };
 
+  /** @param {number} index */
   const getLessonAtIndex = index => {
     if (index == null) {
       return null;
@@ -148,6 +140,7 @@ function _getFullContextData(data, setData) {
   const getLessonsCount = () => lessons.length;
   const hasCurrLesson = () => currLessonIndex != null;
 
+  /** @param {number} index */
   const gotoLessonAtIndex = index => {
     if (index == null) {
       setData({ lessons, currLessonIndex: null });

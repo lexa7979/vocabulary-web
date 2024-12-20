@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 const Global = {
   context: null,
@@ -20,9 +19,7 @@ export { UserContext, UserConsumer, useUserContext, _testInternals };
  * returns all given children and enables them to access the context "user".
  *
  * @param {object} props
- * @param {*} [props.children]
- *
- * @returns {*} JSX
+ * @param {React.ReactNode} [props.children]
  */
 function UserContext(props) {
   const { children } = props;
@@ -39,13 +36,6 @@ function UserContext(props) {
 
   return <Provider value={value}>{children}</Provider>;
 }
-
-UserContext.propTypes = {
-  children: PropTypes.node,
-};
-UserContext.defaultProps = {
-  children: null,
-};
 
 /**
  * Component `<UserConsumer/>`
@@ -73,10 +63,6 @@ function UserConsumer(props) {
   return <Consumer>{children}</Consumer>;
 }
 
-UserConsumer.propTypes = {
-  children: PropTypes.func.isRequired,
-};
-
 /**
  * React hook `useUserContext()`
  * which will return the updated context-data if it is used
@@ -98,13 +84,13 @@ function useUserContext() {
 }
 
 /**
- * @typedef {object} UserContextData
- * @property {boolean} active
- * @property {string} [username]
- * @property {string} [name]
- * @property {() => boolean} isLoggedIn
- * @property {(username: string, name: string) => void} login
- * @property {() => void} logout
+ * @typedef UserContextData
+ * @prop {boolean} active
+ * @prop {string} [username]
+ * @prop {string} [name]
+ * @prop {() => boolean} isLoggedIn
+ * @prop {(username: string, name: string) => void} login
+ * @prop {() => void} logout
  */
 
 /**

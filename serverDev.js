@@ -11,7 +11,7 @@ const webpack = require('webpack');
 
 require('dotenv').config();
 
-const webpackConfig = require('./webpack.config');
+const webpackConfig = require('./webpack.dev-config');
 
 (async function init() {
   await bundleWithWebpack();

@@ -1,29 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { useUserContext } from '../context';
-
 import Login from '../pages/Login';
 
 export default WithLoginOnly;
 
-function WithLoginOnly(props) {
-  const { children, signIn } = props;
+/**
+ * @typedef IWithLoginOnlyProps
+ * @prop {React.ReactNode} [children]
+ * @prop {boolean} [signIn]
+ */
 
-  const userData = useUserContext();
+/** @param {IWithLoginOnlyProps} props */
+function WithLoginOnly({ children, signIn }) {
+    const userData = useUserContext();
 
-  if (userData.isLoggedIn()) {
-    return children;
-  }
+    if (userData.isLoggedIn()) {
+        return children;
+    }
 
-  return signIn ? <Login /> : null;
+    return signIn ? <Login /> : null;
 }
-
-WithLoginOnly.propTypes = {
-  children: PropTypes.node,
-  signIn: PropTypes.bool,
-};
-WithLoginOnly.defaultProps = {
-  children: null,
-  signIn: false,
-};
