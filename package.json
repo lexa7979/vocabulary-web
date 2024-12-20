@@ -59,6 +59,7 @@
         "file-loader": "^6.2.0",
         "html-webpack-plugin": "^5.6.3",
         "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
         "jest-extended": "^4.0.2",
         "mini-css-extract-plugin": "^2.9.2",
         "nodemon": "^3.1.9",
@@ -123,7 +124,8 @@
     "jest": {
         "clearMocks": true,
         "setupFilesAfterEnv": [
-            "jest-extended"
+            "jest-extended/all",
+            "@testing-library/jest-dom"
         ],
         "verbose": true,
         "testEnvironment": "jsdom"
