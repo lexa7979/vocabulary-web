@@ -18,27 +18,13 @@ export default BaseLayoutMain;
 function BaseLayoutMain({ hasMainContainer, children }) {
     const { isDrawerOpen } = useMainContext();
 
+    const styles = getSxStyles({ isDrawerOpen });
+
     return (
-        <Box
-            component="main"
-            sx={[
-                {
-                    flexGrow: 1,
-                    p: 3,
-                    marginLeft: `-${DRAWER_WIDTH}px`,
-                    height: '100vh',
-                    overflow: 'auto',
-                },
-                getTransition('leavingScreen', 'margin'),
-                isDrawerOpen && {
-                    marginLeft: 0,
-                },
-                isDrawerOpen && getTransition('enteringScreen', 'margin'),
-            ]}
-        >
-            <Box sx={theme => theme.mixins.toolbar} />
+        <Box component="main" sx={styles.main}>
+            <Box sx={styles.toolbar} />
             {hasMainContainer ? (
-                <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Container maxWidth="lg" sx={styles.container}>
                     {children}
                 </Container>
             ) : (
@@ -49,4 +35,31 @@ function BaseLayoutMain({ hasMainContainer, children }) {
             </Box>
         </Box>
     );
+}
+
+/**
+ * @param {{ isDrawerOpen: boolean }} props
+ * @returns {import('../types').TSxStyles<"main" | "toolbar" | "container">}
+ */
+function getSxStyles({ isDrawerOpen }) {
+    return {
+        main: [
+            {
+                flexGrow: 1,
+                p: 3,
+                marginLeft: `-${DRAWER_WIDTH}px`,
+                height: '100vh',
+                overflow: 'auto',
+            },
+            getTransition('leavingScreen', 'margin'),
+            isDrawerOpen && {
+                marginLeft: 0,
+            },
+            isDrawerOpen && getTransition('enteringScreen', 'margin'),
+        ],
+        toolbar: theme => theme.mixins.toolbar,
+        container: {
+            py: 4,
+        },
+    };
 }

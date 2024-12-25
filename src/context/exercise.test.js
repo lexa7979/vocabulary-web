@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import React from 'react';
 
 import { bold, green, IS_ACCESSIBLE } from '../../test';
@@ -15,32 +16,41 @@ describe(bold('Context "exercise"'), () => {
 });
 
 function runTestsAboutExerciseContextProvider() {
-    const { ExerciseContext } = Exercise;
+    const { ExerciseContextProvider } = Exercise;
 
     describe(`exports a component ${bold('<ExerciseContext/>')} which`, () => {
-        it(IS_ACCESSIBLE, () => expect(ExerciseContext).toBeFunction());
+        function getMockedExerciseContextSetup() {
+            /* @type {import('.').IExerciseContextSetup} */
+            const contextSetup = {
+                lessons: [],
+                setLessons: jest.fn(),
+                currLessonIndex: null,
+                setCurrLessonIndex: jest.fn(),
+            };
+            return contextSetup;
+        }
 
-        it(`${green('expects')} one argument (props)`, () => expect(ExerciseContext).toHaveLength(1));
+        it(IS_ACCESSIBLE, () => expect(ExerciseContextProvider).toBeFunction());
+
+        it(`${green('expects')} one argument (props)`, () => expect(ExerciseContextProvider).toHaveLength(1));
 
         it(`- when used w/o any props - ${green('renders nothing')}`, () => {
-            const { innerHTML } = render(<ExerciseContext />).container;
+            const { container } = render(<ExerciseContextProvider value={getMockedExerciseContextSetup()} />);
 
-            expect(innerHTML).toBe('');
+            expect(container).toBeEmptyDOMElement();
         });
 
         it(`- when used with children - ${green('renders children')}`, () => {
-            const component = (
-                <ExerciseContext>
+            const { container } = render(
+                <ExerciseContextProvider value={getMockedExerciseContextSetup()}>
                     <div>Test DIV 1</div>
                     <div>Test DIV 2</div>
-                </ExerciseContext>
+                </ExerciseContextProvider>
             );
 
-            const { childNodes } = render(component).container;
-
-            expect(childNodes).toHaveLength(2);
-            expect(childNodes[0]).toHaveTextContent('Test DIV 1');
-            expect(childNodes[1]).toHaveTextContent('Test DIV 2');
+            expect(container.childNodes).toHaveLength(2);
+            expect(container.childNodes[0]).toHaveTextContent('Test DIV 1');
+            expect(container.childNodes[1]).toHaveTextContent('Test DIV 2');
         });
     });
 }

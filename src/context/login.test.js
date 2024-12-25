@@ -1,199 +1,83 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, renderHook } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import React from 'react';
 
 import { bold, Console, copyObject, FAILS, green, IS_ACCESSIBLE, red, RETURNS } from '../../test';
 
-import * as User from './user';
+import * as Login from './login';
 
 const DUMMY_USER_INFO = 'Current user is dummy (Dummy context user)';
 
-describe(bold('Context "user"'), () => {
-    beforeEach(User._testInternals.resetContext);
-
-    it(`${green('exports 3 public items')} as expected`, () => {
-        expect(User).toContainAllKeys(['UserContext', 'UserConsumer', 'useUserContext', '_testInternals']);
+describe(bold('Context "login"'), () => {
+    it(`${green('exports three items')} as expected`, () => {
+        expect(Login).toContainAllKeys(['LoginContextProvider', 'useLoginContextSetup', 'useLoginContext']);
     });
 
-    runTestsAboutUserProvider();
-    runTestsAboutUserConsumer();
-    runTestsAboutUseUserContext();
-
-    runTestsAboutEdgeCases();
+    runTestsAboutLoginContextProvider();
+    runTestsAboutUseLoginContextSetup();
+    runTestsAboutUseLoginContext();
 });
 
-function runTestsAboutUserProvider() {
-    const { UserContext } = User;
+function runTestsAboutLoginContextProvider() {
+    const { LoginContextProvider } = Login;
 
-    describe(`exports a component ${bold('<UserContext/>')} which`, () => {
-        it(IS_ACCESSIBLE, () => {
-            expect(UserContext).toBeFunction();
-        });
+    describe(`exports a component ${bold('<LoginContextProvider/>')} which`, () => {
+        const dummyContextSetup = { userData: {}, setUserData: jest.fn() };
+
+        it(IS_ACCESSIBLE, () => expect(LoginContextProvider).toBeFunction());
 
         it(`${green("doesn't render")} any output itself`, () => {
-            const { container } = render(<UserContext />);
-            expect(container.firstChild).toBeNull();
+            const { container } = render(<LoginContextProvider value={dummyContextSetup} />);
+
+            expect(container).toBeEmptyDOMElement();
         });
 
         it(`${RETURNS} any given children`, () => {
-            const testSetup = (
-                <UserContext>
+            const { container } = render(
+                <LoginContextProvider value={dummyContextSetup}>
                     <div>Test Content 1</div>
                     <div>Test Content 2</div>
                     <div>Test Content 3</div>
-                </UserContext>
+                </LoginContextProvider>
             );
-
-            const { container } = render(testSetup);
 
             expect(container.childNodes).toHaveLength(3);
             expect(container.childNodes[0]).toHaveTextContent('Test Content 1');
             expect(container.childNodes[1]).toHaveTextContent('Test Content 2');
             expect(container.childNodes[2]).toHaveTextContent('Test Content 3');
         });
+    });
+}
 
-        it(`internally ${green('creates')} a new context`, () => {
-            expect(User._testInternals.getContext()).toBeNull();
+function runTestsAboutUseLoginContextSetup() {
+    const { useLoginContextSetup } = Login;
 
-            render(<UserContext />);
+    describe(`exports a function ${bold('useLoginContextSetup()')} which`, () => {
+        it(IS_ACCESSIBLE, () => expect(useLoginContextSetup).toBeFunction());
 
-            expect(User._testInternals.getContext()).not.toBeNull();
+        it(`is a React-hook and excepts no arguments`, () => {
+            renderHook(useLoginContextSetup);
+            expect(useLoginContextSetup).toHaveLength(0);
         });
     });
 }
 
-function runTestsAboutUserConsumer() {
-    const { UserConsumer, UserContext } = User;
+function runTestsAboutUseLoginContext() {
+    const { LoginContextProvider, useLoginContextSetup, useLoginContext } = Login;
 
-    describe(`exports a component ${bold('<UserConsumer/>')} which`, () => {
+    describe(`exports a function ${bold('useLoginContext()')} which`, () => {
         it(IS_ACCESSIBLE, () => {
-            expect(UserConsumer).toBeFunction();
+            expect(useLoginContext).toBeFunction();
         });
 
-        it(`- when used w/o any <UserContext/> - ${FAILS} as expected`, () => {
-            const testRun = () =>
-                render(
-                    <UserConsumer>
-                        {userData => <TestComponentWithUserDataByProps target="user-info" userData={userData} />}
-                    </UserConsumer>
-                );
-
-            expect(() => Console.runQuietly(testRun)).toThrow('No user context found');
-        });
-
-        it(`- when not used with a function as child - ${FAILS} as expected`, () => {
-            const testRun = () =>
-                render(
-                    <UserContext>
-                        <UserConsumer>
-                            {/* @ts-ignore */}
-                            <div>Test Content</div>
-                        </UserConsumer>
-                    </UserContext>
-                );
-
-            expect(() => Console.runQuietly(testRun)).toThrow('Child must be a function');
-        });
-
-        it(
-            '- when placed outside of an existing <UserContext/> - ' +
-                `${red('only delivers')} some semi-functional dummy-data`,
-            () => {
-                const testSetup = (
-                    <>
-                        <UserContext>
-                            <div>Test Content</div>
-                        </UserContext>
-                        <UserConsumer>
-                            {userData => (
-                                <>
-                                    <TestComponentWithUserDataByProps target="user-info" userData={userData} />
-                                    <TestComponentWithUserDataByProps target="login-button" userData={userData} />
-                                </>
-                            )}
-                        </UserConsumer>
-                    </>
-                );
-
-                const { getByTestId } = render(testSetup);
-
-                const userInfo = getByTestId('user-info');
-                const loginButton = getByTestId('login-button');
-
-                expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-                fireEvent.click(loginButton);
-                expect(userInfo).toHaveTextContent(DUMMY_USER_INFO);
-            }
-        );
-
-        it(
-            '- when wrapped in <UserContext/> and used with a function as child - ' +
-                `${green('gives full access')} to updated context-data`,
-            () => {
-                const testSetup = (
-                    <UserContext>
-                        <UserConsumer>
-                            {userData => (
-                                <>
-                                    <TestComponentWithUserDataByProps target="user-info" userData={userData} />
-                                    <TestComponentWithUserDataByProps target="login-button" userData={userData} />
-                                    <TestComponentWithUserDataByProps target="logout-button" userData={userData} />
-                                </>
-                            )}
-                        </UserConsumer>
-                    </UserContext>
-                );
-
-                const { getByTestId } = render(testSetup);
-
-                const userInfo = getByTestId('user-info');
-                const loginButton = getByTestId('login-button');
-                const logoutButton = getByTestId('logout-button');
-
-                expect(userInfo).toHaveTextContent('Nobody is logged in');
-                fireEvent.click(loginButton);
-                expect(userInfo).toHaveTextContent('Current user is testuser (Test User)');
-                fireEvent.click(logoutButton);
-                expect(userInfo).toHaveTextContent('Nobody is logged in');
-            }
-        );
-
-        it(`- when used twice inside of same <UserContext/> - ${green('uses')} same context`, () => {
-            const testSetup = (
-                <UserContext>
-                    <UserConsumer>
-                        {userData => <TestComponentWithUserDataByProps target="user-info" userData={userData} />}
-                    </UserConsumer>
-                    <UserConsumer>
-                        {userData => <TestComponentWithUserDataByProps target="login-button" userData={userData} />}
-                    </UserConsumer>
-                </UserContext>
-            );
-
-            const { getByTestId } = render(testSetup);
-
-            const userInfo = getByTestId('user-info');
-            const loginButton = getByTestId('login-button');
-
-            expect(userInfo).toHaveTextContent('Nobody is logged in');
-            fireEvent.click(loginButton);
-            expect(userInfo).toHaveTextContent('Current user is testuser (Test User)');
-        });
-    });
-}
-
-function runTestsAboutUseUserContext() {
-    const { UserContext, useUserContext } = User;
-
-    describe(`exports a hook ${bold('useUserContext()')} which`, () => {
-        it(IS_ACCESSIBLE, () => {
-            expect(useUserContext).toBeFunction();
+        it.skip(`is a React-hook`, () => {
+            // TODO
         });
 
         it(`- when used outside of any component - ${red('only delivers')} some semi-functional dummy-data`, () => {
-            const userData = useUserContext();
+            const userData = useLoginContext();
 
-            const copy = copyObject(userData, { replaceFunctions: true });
-            expect(copy).toEqual({
+            expect(copyObject(userData, { replaceFunctions: true })).toEqual({
                 username: 'dummy',
                 name: 'Dummy context user',
                 active: true,
@@ -239,9 +123,9 @@ function runTestsAboutUseUserContext() {
             () => {
                 const testSetup = (
                     <>
-                        <UserContext>
+                        <LoginContextProvider>
                             <div>Test Content</div>
-                        </UserContext>
+                        </LoginContextProvider>
                         <TestComponentWithUserDataByHook target="user-info" />
                         <TestComponentWithUserDataByHook target="login-button" />
                     </>

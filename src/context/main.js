@@ -1,42 +1,33 @@
 const { createContext, useState, useContext } = require('react');
 
-/**
- * @typedef IMainContextSetup
- * @prop {boolean} isDrawerOpen
- * @prop {React.Dispatch<React.SetStateAction<boolean>>} setIsDrawerOpen
- * @prop {boolean} [_isDefaultData]
- */
-
-/**
- * @typedef IMainContextValue
- * @prop {boolean} isDrawerOpen
- * @prop {VoidFunction} toggleDrawer
- */
-
-/** @type {IMainContextSetup} */
-const defaultData = {
+/** @type {import('./types').IMainContextSetup} */
+const defaultSetup = {
     isDrawerOpen: false,
     setIsDrawerOpen: () => {},
-    _isDefaultData: true,
+    _isDefaultSetup: true,
 };
 
-const _MainContext = createContext(defaultData);
-
+const _MainContext = createContext(defaultSetup);
 const MainContextProvider = _MainContext.Provider;
 
+/** @returns {import('./types').IMainContextSetup} */
 const useMainContextSetup = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(true);
 
-    return { isDrawerOpen, setIsDrawerOpen };
+    return {
+        isDrawerOpen,
+        setIsDrawerOpen,
+    };
 };
 
-/** @returns {IMainContextValue} */
+/** @returns {import('./types').IMainContextValue} */
 const useMainContext = () => {
     const { isDrawerOpen, setIsDrawerOpen } = useContext(_MainContext);
 
-    const toggleDrawer = () => setIsDrawerOpen(value => !value);
-
-    return { isDrawerOpen, toggleDrawer };
+    return {
+        isDrawerOpen,
+        toggleDrawer: () => setIsDrawerOpen(value => !value),
+    };
 };
 
 export { MainContextProvider, useMainContextSetup, useMainContext };

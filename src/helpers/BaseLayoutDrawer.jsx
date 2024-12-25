@@ -26,6 +26,8 @@ function BaseLayoutDrawer() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const styles = getSxStyles();
+
     const pageButtons = getDrawerPaths().map(({ path, icon, caption }) => (
         <ListItem key={path}>
             <ListItemButton onClick={() => navigate(path)} selected={location.pathname === path}>
@@ -36,30 +38,8 @@ function BaseLayoutDrawer() {
     ));
 
     return (
-        <Drawer
-            className="BaseLayoutDrawer"
-            variant="persistent"
-            open={isDrawerOpen}
-            sx={{
-                width: DRAWER_WIDTH,
-                flexShrink: 0,
-                '& .MuiDrawer-paper': {
-                    width: DRAWER_WIDTH,
-                    boxSizing: 'border-box',
-                },
-            }}
-        >
-            <Box
-                sx={[
-                    {
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        px: 1,
-                    },
-                    theme => theme.mixins.toolbar,
-                ]}
-            >
+        <Drawer className="BaseLayoutDrawer" variant="persistent" open={isDrawerOpen} sx={styles.drawer}>
+            <Box sx={styles.iconContainer}>
                 <IconButton onClick={toggleDrawer}>
                     <Icons.ChevronLeft />
                 </IconButton>
@@ -68,4 +48,27 @@ function BaseLayoutDrawer() {
             <List>{pageButtons}</List>
         </Drawer>
     );
+}
+
+/** @returns {import('../types').TSxStyles<"drawer" | "iconContainer">} */
+function getSxStyles() {
+    return {
+        drawer: {
+            width: DRAWER_WIDTH,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+                width: DRAWER_WIDTH,
+                boxSizing: 'border-box',
+            },
+        },
+        iconContainer: [
+            {
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                px: 1,
+            },
+            theme => theme.mixins.toolbar,
+        ],
+    };
 }

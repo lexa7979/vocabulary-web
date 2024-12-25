@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useUserContext } from '../context';
+import { useLoginContext } from '../context';
 import Login from '../pages/Login';
 
 export default WithLoginOnly;
@@ -13,9 +13,9 @@ export default WithLoginOnly;
 
 /** @param {IWithLoginOnlyProps} props */
 function WithLoginOnly({ children, signIn }) {
-    const userData = useUserContext();
+    const { isLoggedIn } = useLoginContext();
 
-    if (userData.isLoggedIn()) {
+    if (isLoggedIn()) {
         return children;
     }
 

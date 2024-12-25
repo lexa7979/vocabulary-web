@@ -10,9 +10,15 @@ import { createRoot } from 'react-dom/client';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import getRouterPaths from './config/getRouterPaths';
-import { ExerciseContext, UserContext } from './context';
+import {
+    ExerciseContextProvider,
+    LoginContextProvider,
+    MainContextProvider,
+    useExerciseContextSetup,
+    useLoginContextSetup,
+    useMainContextSetup,
+} from './context';
 import { WithLoginOnly } from './helpers';
-import { MainContextProvider, useMainContextSetup } from './context/main';
 
 const theme = createTheme({});
 
@@ -30,16 +36,16 @@ function App() {
 
     return (
         <MainContextProvider value={useMainContextSetup()}>
-            <UserContext>
-                <ExerciseContext>
+            <LoginContextProvider value={useLoginContextSetup()}>
+                <ExerciseContextProvider value={useExerciseContextSetup()}>
                     <CssBaseline />
                     <ThemeProvider theme={theme}>
                         <Router>
                             <Routes>{routes}</Routes>
                         </Router>
                     </ThemeProvider>
-                </ExerciseContext>
-            </UserContext>
+                </ExerciseContextProvider>
+            </LoginContextProvider>
         </MainContextProvider>
     );
 }

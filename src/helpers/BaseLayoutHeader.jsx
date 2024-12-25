@@ -3,11 +3,11 @@ import { AppBar, Button, IconButton, Toolbar, Typography } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useUserContext } from '../context';
+import { useExerciseContext, useLoginContext } from '../context';
+import { useMainContext } from '../context/main';
 import { DRAWER_WIDTH } from './BaseLayoutDrawer';
 import WithLoginOnly from './WithLoginOnly';
 import getTransition from './getTransition';
-import { useMainContext } from '../context/main';
 
 export default BaseLayoutHeader;
 
@@ -19,60 +19,31 @@ export default BaseLayoutHeader;
 /** @param {IBaseLayoutHeaderProps} props */
 function BaseLayoutHeader({ title }) {
     const { isDrawerOpen, toggleDrawer } = useMainContext();
-    const userData = useUserContext();
+    const { logout } = useLoginContext();
+    const { setAllLessons } = useExerciseContext();
     const navigate = useNavigate();
 
+    const styles = getSxStyles({ isDrawerOpen });
+
     const _logout = () => {
-        userData.logout();
+        logout();
+        setAllLessons([]);
         navigate('/');
     };
 
     return (
-        <AppBar
-            position="fixed"
-            className="BaseLayoutHeader"
-            sx={[
-                theme => ({
-                    zIndex: theme.zIndex.drawer + 1,
-                }),
-                isDrawerOpen && {
-                    marginLeft: DRAWER_WIDTH,
-                    width: `calc(100% - ${DRAWER_WIDTH}px)`,
-                },
-                getTransition('leavingScreen', 'width', 'margin'),
-                isDrawerOpen && getTransition('enteringScreen', 'width', 'margin'),
-            ]}
-        >
-            <Toolbar
-                sx={{
-                    pr: 3,
-                }}
-            >
+        <AppBar position="fixed" className="BaseLayoutHeader" sx={styles.appBar}>
+            <Toolbar sx={styles.toolbar}>
                 <IconButton
                     edge="start"
                     color="inherit"
                     aria-label="menu"
                     onClick={toggleDrawer}
-                    sx={[
-                        {
-                            mr: 4,
-                        },
-                        isDrawerOpen && {
-                            display: 'none',
-                        },
-                    ]}
+                    sx={styles.menuIconButton}
                 >
                     <Icons.Menu />
                 </IconButton>
-                <Typography
-                    component="h1"
-                    variant="h6"
-                    color="inherit"
-                    noWrap
-                    sx={{
-                        flexGrow: 1,
-                    }}
-                >
+                <Typography component="h1" variant="h6" color="inherit" noWrap sx={styles.pageTitle}>
                     {title}
                 </Typography>
                 <WithLoginOnly>
@@ -83,4 +54,38 @@ function BaseLayoutHeader({ title }) {
             </Toolbar>
         </AppBar>
     );
+}
+
+/**
+ * @param {{isDrawerOpen: boolean}} props
+ * @returns {import('../types').TSxStyles<"appBar" | "toolbar" | "menuIconButton" | "pageTitle">}
+ */
+function getSxStyles({ isDrawerOpen }) {
+    return {
+        appBar: [
+            theme => ({
+                zIndex: theme.zIndex.drawer + 1,
+            }),
+            isDrawerOpen && {
+                marginLeft: DRAWER_WIDTH,
+                width: `calc(100% - ${DRAWER_WIDTH}px)`,
+            },
+            getTransition('leavingScreen', 'width', 'margin'),
+            isDrawerOpen && getTransition('enteringScreen', 'width', 'margin'),
+        ],
+        toolbar: {
+            pr: 3,
+        },
+        menuIconButton: [
+            {
+                mr: 4,
+            },
+            isDrawerOpen && {
+                display: 'none',
+            },
+        ],
+        pageTitle: {
+            flexGrow: 1,
+        },
+    };
 }

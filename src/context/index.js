@@ -1,4 +1,15 @@
-import { UserContext, useUserContext } from './user';
-import { ExerciseContext, useExerciseContext } from './exercise';
+import { ExerciseContextProvider, useExerciseContext, useExerciseContextSetup } from './exercise';
+import { LoginContextProvider, useLoginContext, useLoginContextSetup } from './login';
+import { MainContextProvider, useMainContext, useMainContextSetup } from './main';
 
-export { UserContext, useUserContext, ExerciseContext, useExerciseContext };
+export {
+    ExerciseContextProvider,
+    LoginContextProvider,
+    MainContextProvider,
+    useExerciseContext,
+    useExerciseContextSetup,
+    useLoginContext,
+    useLoginContextSetup,
+    useMainContext,
+    useMainContextSetup,
+};
