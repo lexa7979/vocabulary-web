@@ -2,6 +2,8 @@ import { createContext, useContext, useState } from 'react';
 
 /** @type {import('./types').IExerciseContextSetup} */
 const defaultSetup = {
+    userAnswer: '',
+    setUserAnswer: () => {},
     lessons: [],
     setLessons: () => {},
     currLessonIndex: null,
@@ -14,10 +16,13 @@ const ExerciseContextProvider = _ExerciseContext.Provider;
 
 /** @returns {import('./types').IExerciseContextSetup} */
 const useExerciseContextSetup = () => {
+    const [userAnswer, setUserAnswer] = useState('');
     const [lessons, setLessons] = useState(defaultSetup.lessons);
     const [currLessonIndex, setCurrLessonIndex] = useState(defaultSetup.currLessonIndex);
 
     return {
+        userAnswer,
+        setUserAnswer,
         lessons,
         setLessons,
         currLessonIndex,
@@ -28,13 +33,16 @@ const useExerciseContextSetup = () => {
 /** @returns {import('./types').IExerciseContextValue} */
 const useExerciseContext = () => {
     const contextSetup = useContext(_ExerciseContext);
-    const { lessons, currLessonIndex } = contextSetup;
+    const { userAnswer, setUserAnswer, lessons, currLessonIndex } = contextSetup;
 
     const setAllLessons = _prepareSetAllLessons(contextSetup);
     const getLessonAtIndex = _prepareGetLessonAtIndex(contextSetup);
     const gotoLessonAtIndex = _prepareGotoLessonAtIndex(contextSetup);
 
     return {
+        userAnswer,
+        setUserAnswer,
+
         lessons,
         setAllLessons,
         getLessonsCount: () => lessons.length,

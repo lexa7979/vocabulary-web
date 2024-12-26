@@ -1,147 +1,85 @@
-import { Box, Button, TextField } from '@mui/material';
-import React, { useEffect, useRef, useState } from 'react';
-import * as Icons from '@mui/icons-material';
+import { Button } from '@mui/material';
+import React, { useState } from 'react';
 
 import { useExerciseContext } from '../context';
-import BaseLayout from '../helpers/BaseLayout';
+import { BaseLayout } from '../helpers';
+import ExerciseAnswer from './ExerciseAnswer';
+import ExercisePending from './ExercisePending';
+import ExerciseQuestion from './ExerciseQuestion';
 
 export default Exercise;
 
-const STEPS = {
-    INITIAL: 'initial',
-    QUESTION: 'question',
-    ANSWER: 'answer',
-    PENDING: 'pending',
-};
+/** @typedef {"initial" | "question" | "answer" | "pending"} TExerciseSteps */
+
+/** @type {TExerciseSteps} */
+const initialStep = 'pending';
 
 function Exercise() {
-    const { getLessonsCount, isLastLesson, getCurrLesson, gotoFirstLesson, gotoNextLesson } = useExerciseContext();
+    const { getLessonsCount, getCurrLesson } = useExerciseContext();
 
-    const [currStep, setCurrStep] = useState(STEPS.INITIAL);
-    const [userInput, setUserInput] = useState('');
+    const [currStep, setCurrStep] = useState(initialStep);
 
-    const styles = getSxStyles();
-
-    /** @type {React.RefObject<HTMLButtonElement>} */
-    const primaryButtonRef = useRef(null);
-    /** @type {React.RefObject<HTMLInputElement>} */
-    const focusedInputRef = useRef(null);
-
-    useEffect(() => {
-        if (focusedInputRef.current) {
-            focusedInputRef.current.focus();
-        }
-        if (primaryButtonRef.current) {
-            primaryButtonRef.current.focus();
-        }
-    }, [focusedInputRef.current, primaryButtonRef.current]);
-
-    if (getLessonsCount() === 0 || (currStep === STEPS.PENDING && isLastLesson())) {
+    if (getLessonsCount() === 0) {
         return <BaseLayout title="Glosförhör">No more words for today.</BaseLayout>;
     }
 
     const lesson = getCurrLesson();
 
-    if (!lesson || currStep === STEPS.INITIAL) {
-        const onStart = () => {
-            if (!lesson) {
-                gotoFirstLesson();
-            }
-            setCurrStep(STEPS.QUESTION);
-        };
+    if (!lesson) {
         return (
             <BaseLayout title="Glosförhör" hasMainContainer>
-                <Button variant="contained" onClick={onStart} ref={primaryButtonRef}>
-                    Let&apos;s go
-                </Button>
+                <ExerciseInitial lesson={lesson} setCurrStep={setCurrStep} />
             </BaseLayout>
         );
     }
 
     switch (currStep) {
-        case STEPS.QUESTION: {
-            const onCheck = () => {
-                setCurrStep(STEPS.ANSWER);
-            };
-            /** @param {React.ChangeEvent<HTMLInputElement} event */
-            const onInput = event => {
-                setUserInput(event.target.value);
-                if (event.target.value === lesson.translation) {
-                    onCheck();
-                }
-            };
+        case 'question':
             return (
                 <BaseLayout title="Glosförhör" hasMainContainer>
-                    <Box sx={styles.twoColumns}>
-                        <div>Translate:</div>
-                        <div>{lesson.text}</div>
-                        <div />
-                        <TextField label="Swedish" value={userInput} onChange={onInput} inputRef={focusedInputRef} />
-                        <Button variant="contained" onClick={onCheck}>
-                            Check
-                        </Button>
-                    </Box>
+                    <ExerciseQuestion lesson={lesson} setCurrStep={setCurrStep} />
                 </BaseLayout>
             );
-        }
-        case STEPS.ANSWER: {
-            const onWrong = () => {
-                setCurrStep(STEPS.PENDING);
-                setUserInput('');
-            };
-            const onCorrect = () => {
-                setCurrStep(STEPS.PENDING);
-                setUserInput('');
-            };
+
+        case 'answer':
             return (
                 <BaseLayout title="Glosförhör" hasMainContainer>
-                    <Box sx={styles.twoColumns}>
-                        <div>Svenska</div>
-                        <div>Tyska</div>
-                        <div>{lesson.text}</div>
-                        <div>{lesson.translation}</div>
-                        <div>{lesson.comment}</div>
-                        <div />
-                        <Button variant="outlined" startIcon={<Icons.Dangerous />} onClick={onWrong}>
-                            Wrong
-                        </Button>
-                        <Button
-                            variant="contained"
-                            startIcon={<Icons.Verified />}
-                            onClick={onCorrect}
-                            ref={primaryButtonRef}
-                        >
-                            Correct
-                        </Button>
-                    </Box>
+                    <ExerciseAnswer lesson={lesson} setCurrStep={setCurrStep} />
                 </BaseLayout>
             );
-        }
-        case STEPS.PENDING: {
-            const onNext = () => {
-                gotoNextLesson();
-                setCurrStep(STEPS.QUESTION);
-            };
+
+        case 'pending':
             return (
                 <BaseLayout title="Glosförhör" hasMainContainer>
-                    <Button variant="contained" onClick={onNext} ref={primaryButtonRef}>
-                        Next word
-                    </Button>
+                    <ExercisePending lesson={lesson} setCurrStep={setCurrStep} />
                 </BaseLayout>
             );
-        }
+
         default:
             throw new Error(`<Exercise/> failed - invalid step ${currStep}`);
     }
 }
 
-/** @returns {import('../types').TSxStyles<"twoColumns">} */
-function getSxStyles() {
-    return {
-        twoColumns: {
-            display: 'grid',
-            gridTemplateColumns: 'auto auto',
-            gap: 1,
-        },
+/**
+ * @typedef IExerciseStepProps
+ * @prop {import('../context/types').IExerciseContextLessonData} lesson
+ * @prop {(value: React.SetStateAction<TExerciseSteps>) => void} setCurrStep
+ */
+
+/** @param {IExerciseStepProps} props */
+function ExerciseInitial({ lesson, setCurrStep }) {
+    const { gotoFirstLesson } = useExerciseContext();
+
+    const onStart = () => {
+        if (!lesson) {
+            gotoFirstLesson();
+        }
+        setCurrStep('question');
     };
+
+    return (
+        <Button variant="contained" onClick={onStart} autoFocus>
+            Let&apos;s go
+        </Button>
+    );
 }

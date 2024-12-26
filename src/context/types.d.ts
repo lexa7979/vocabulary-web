@@ -32,6 +32,8 @@ export interface IUserData {
 }
 
 export interface IExerciseContextSetup {
+    userAnswer: string;
+    setUserAnswer: React.Dispatch<React.SetStateAction<string>>;
     lessons: IExerciseContextLessonData[];
     setLessons: React.Dispatch<React.SetStateAction<IExerciseContextLessonData[]>>;
     currLessonIndex: number;
@@ -40,6 +42,8 @@ export interface IExerciseContextSetup {
 }
 
 export interface IExerciseContextValue {
+    userAnswer: string;
+    setUserAnswer: React.Dispatch<React.SetStateAction<string>>;
     lessons: IExerciseContextLessonData[];
     setAllLessons: (listOfLessons: IExerciseContextLessonData[]) => void;
     getLessonsCount: () => number;
